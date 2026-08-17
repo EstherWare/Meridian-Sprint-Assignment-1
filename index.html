@@ -1,0 +1,35 @@
+
+
+<button onclick="fetchInventory()">Check Inventory</button>
+<p id="statusMessage">Status: Waiting...</p>
+
+<script>
+  let attemptCount = 0;
+  let maxRetries = 3;
+
+  function fetchInventory() {
+    attemptCount++;
+    
+    document.getElementById("statusMessage").innerText = "Trying to connect... Attempt " + attemptCount;
+    
+    let success = false; 
+
+    if (success) {
+      document.getElementById("statusMessage").innerText = "Connected successfully!";
+    } else {
+      if (attemptCount <= maxRetries) {
+        
+        let waitTimeSeconds = Math.pow(2, attemptCount); 
+        let waitTimeMilliseconds = waitTimeSeconds * 1000; 
+        
+        document.getElementById("statusMessage").innerText += " (Failed. Waiting " + waitTimeSeconds + "s to retry...)";
+        
+        setTimeout(fetchInventory, waitTimeMilliseconds);
+        
+      } else {
+        document.getElementById("statusMessage").innerText = "Connection completely failed after " + maxRetries + " retries. Give up.";
+        attemptCount = 0; 
+      }
+    }
+  }
+</script>
