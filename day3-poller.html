@@ -1,0 +1,69 @@
+
+
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Northstar Inventory Poller</h2>
+  
+  <div style="margin-bottom: 20px;">
+    <strong>API Poller Status:</strong> 
+    <span id="pollerStatus" style="color: blue;">Initializing...</span>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <strong>Local Cache Storage:</strong> 
+    <span id="cacheStatus" style="color: gray;">Empty</span>
+  </div>
+
+  <button onclick="checkEndpoint()" style="padding: 10px; cursor: pointer;">
+    Ping Client Endpoint
+  </button>
+  
+  <p><strong>Endpoint Response:</strong> <span id="endpointResponse">...</span></p>
+</div>
+
+<script>
+  // 1. THE CACHE (Local Memory)
+  let inventoryCache = null;
+  let attemptCount = 0;
+  let maxRetries = 3;
+
+  // 2. THE POLLER & BACKOFF LOGIC
+  function pollWarehouseAPI() {
+    document.getElementById("pollerStatus").innerText = "Polling warehouse...";
+    
+    // Simulating a 50/50 chance the warehouse server crashes
+    let serverSuccess = Math.random() > 0.5;
+
+    if (serverSuccess) {
+      // Success! Save to cache and reset attempts
+      inventoryCache = { stock: 42, status: "In Stock", lastUpdated: new Date().toLocaleTimeString() };
+      document.getElementById("pollerStatus").innerText = "Success! Data retrieved.";
+      document.getElementById("cacheStatus").innerText = "Stock: " + inventoryCache.stock + " (Updated: " + inventoryCache.lastUpdated + ")";
+      document.getElementById("cacheStatus").style.color = "green";
+      attemptCount = 0; 
+    } else {
+      // Failure! Trigger Exponential Backoff
+      attemptCount++;
+      if (attemptCount <= maxRetries) {
+        let waitTimeSeconds = Math.pow(2, attemptCount); 
+        document.getElementById("pollerStatus").innerText = "Server failed. Backoff: retrying in " + waitTimeSeconds + "s...";
+        document.getElementById("pollerStatus").style.color = "red";
+        setTimeout(pollWarehouseAPI, waitTimeSeconds * 1000);
+      } else {
+        document.getElementById("pollerStatus").innerText = "Critical Failure. Max retries reached.";
+        attemptCount = 0;
+      }
+    }
+  }
+
+  // 3. THE ENDPOINT (Client Gateway)
+  window.checkEndpoint = function() {
+    let responseText = inventoryCache 
+      ? "Available! We have " + inventoryCache.stock + " items." 
+      : "Error: No data in cache yet.";
+    
+    document.getElementById("endpointResponse").innerText = responseText;
+  };
+
+  // Start the 5-second polling loop to test
+  setInterval(pollWarehouseAPI, 300000);
+</script>
