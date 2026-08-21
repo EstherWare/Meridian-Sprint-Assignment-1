@@ -8,11 +8,11 @@
     <title>Solstice Events - Check-in Kiosk</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f4f9; }
-        .kiosk-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
-        button { background-color: #0078D4; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 1rem; }
+        .kiosk-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+        button { background-color: #0078D4; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 0.5rem; }
         button:hover { background-color: #005a9e; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        #status-display { font-size: 18px; font-weight: bold; margin-top: 1rem; padding: 10px; border-radius: 6px; }
+        #status-display { font-size: 16px; font-weight: bold; margin-top: 1rem; padding: 10px; border-radius: 6px; min-height: 24px;}
         .pending { background-color: #fff4ce; color: #795548; }
         .success { background-color: #dff6dd; color: #107c10; }
         .error { background-color: #fde7e9; color: #a80000; }
@@ -22,31 +22,43 @@
 
     <div class="kiosk-card">
         <h2>Solstice Check-in</h2>
-        <button id="scanBtn" onclick="simulateScan()">Scan Attendee (ATT-101)</button>
+        <!-- Three buttons to satisfy the client requirement -->
+        <button id="btn-ATT-101" onclick="simulateScan('ATT-101', 'btn-ATT-101')">Scan Attendee 1 (Fresh)</button>
+        <button id="btn-ATT-102" onclick="simulateScan('ATT-102', 'btn-ATT-102')">Scan Attendee 2 (Fresh)</button>
+        <button id="btn-dup" onclick="simulateScan('ATT-101', 'btn-dup')">Scan Attendee 1 (Duplicate Test)</button>
+        
         <div id="status-display">Waiting for attendee scan...</div>
     </div>
 
     <script>
-        async function simulateScan() {
-            const btn = document.getElementById('scanBtn');
+        // Local state to simulate database duplicate-scan protection
+        const checkedInAttendees = new Set();
+
+        async function simulateScan(attendeeId, buttonId) {
+            const btn = document.getElementById(buttonId);
             const statusDisplay = document.getElementById('status-display');
             
-            // 1. Lock the UI and set the mandatory "Pending" state
+            // Duplicate scan protection check
+            if (checkedInAttendees.has(attendeeId)) {
+                statusDisplay.className = 'error';
+                statusDisplay.innerText = `Duplicate Blocked: Attendee ${attendeeId} is already checked in.`;
+                return;
+            }
+
+            // 1. Lock the UI (Pending State)
             btn.disabled = true;
             statusDisplay.className = 'pending';
-            statusDisplay.innerText = "Pending: Waiting for printer callback...";
+            statusDisplay.innerText = `Pending: Waiting for printer callback for ${attendeeId}...`;
 
-            // Your live Azure Webhook URL from yesterday
             const webhookUrl = "https://solstice-webhook-ewk-g8a6d0f9fxfjfxcr.southafricanorth-01.azurewebsites.net/api/PrintJobCallback";
-
-            // The mock payload mimicking the vendor's success message
+            
             const vendorPayload = {
-                attendeeId: "ATT-101",
+                attendeeId: attendeeId,
                 status: "COMPLETED"
             };
 
             try {
-                // 2. Simulate the async callback hitting your webhook
+                // 2. Simulate the async callback
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     body: JSON.stringify(vendorPayload)
@@ -54,10 +66,11 @@
 
                 const responseText = await response.text();
 
-                // 3. Update the UI based on the webhook's response
+                // 3. Update the UI 
                 if (response.ok) {
+                    checkedInAttendees.add(attendeeId); // Mark as checked in
                     statusDisplay.className = 'success';
-                    statusDisplay.innerText = "Checked In! \n" + responseText;
+                    statusDisplay.innerText = `Checked In! \n${responseText}`;
                 } else {
                     statusDisplay.className = 'error';
                     statusDisplay.innerText = "Error: " + responseText;
