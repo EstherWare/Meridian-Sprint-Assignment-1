@@ -71,6 +71,7 @@
                     checkedInAttendees.add(attendeeId); // Mark as checked in
                     statusDisplay.className = 'success';
                     statusDisplay.innerText = `Checked In! \n${responseText}`;
+                    playDing();
                 } else {
                     statusDisplay.className = 'error';
                     statusDisplay.innerText = "Error: " + responseText;
@@ -83,6 +84,21 @@
                 btn.disabled = false;
             }
         }
+        function playDing() {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, context.currentTime); // High pitch note
+    gainNode.gain.setValueAtTime(0.1, context.currentTime); // Low volume
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.15); // Plays for a fraction of a second
+}
     </script>
 </body>
 </html>
