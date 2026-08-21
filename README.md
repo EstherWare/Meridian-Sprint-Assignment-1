@@ -1,33 +1,23 @@
-Meridian Sprint Assignment 1: Solo Recon
+
+
+# Solstice Events Co. - Check-in Kiosk
 
 ## Overview
-This repository contains the working mini-prototype for Assignment 1 of the Meridian Pivot sprint. The goal was to build a functional Exponential Retry/Backoff script and execute it successfully in a mobile browser environment.
+This repository contains the frontend kiosk interface for Solstice Events Co., developed during the Meridian Sprint simulation. 
 
-## The Architecture
-The code utilizes a unified single-file architecture (`index.html`) containing both the UI elements and the inline JavaScript backoff logic. This structure was necessary to bypass mobile simulator restrictions.
+This project successfully executed a strict mid-sprint architectural pivot. It transitioned from a deprecated synchronous polling model to a modern, asynchronous event-driven architecture utilizing a message queue and a serverless webhook callback system[cite: 2].
 
----
+## Tech Stack
+* **Frontend:** HTML, CSS, Vanilla JavaScript (Hosted via GitHub Pages)
+* **Backend:** Microsoft Azure Service Bus, Azure Functions (Node.js)
+* **Security:** Configured Cross-Origin Resource Sharing (CORS)
 
-## Learning & Blocker Journal
-*This journal documents the autonomous troubleshooting process required to deploy this prototype.*
+## Core Features
+* **Asynchronous UI State:** The kiosk enforces a strict "Pending" lock state upon scan, waiting for the asynchronous cloud webhook callback before confirming check-in[cite: 2].
+* **Duplicate-Scan Protection:** Implements local state validation to instantly block duplicate attendees from re-printing badges under an out-of-order execution model[cite: 2].
 
-### Blocker Entry #1: The Scope Error
-*   **Date:** August 17, 2026
-*   **The Goal:** Trigger the `fetchInventory` exponential backoff function via an HTML button click.
-*   **The Error / Blocker:** Console threw `Uncaught ReferenceError: fetchInventory is not defined`. The HTML button could not locate the JavaScript function because of how the code editor isolates HTML and JS into separate scopes.
-*   **Resources Consulted:** Researched MDN Web Docs regarding "ReferenceError: not defined" and standard event binding practices.
-*   **The Resolution:** I removed the inline `onclick` attribute from the HTML. Instead, I used `document.getElementById('inventoryBtn').addEventListener('click', fetchInventory)` within the JavaScript file to securely bind the click event without relying on the global scope.
-
-### Blocker Entry #2: The DOM Race Condition
-*   **Date:** August 17, 2026
-*   **The Goal:** Connect the newly written JavaScript event listener to the HTML button.
-*   **The Error / Blocker:** A "Silent Failure." The button became completely unresponsive, and no errors appeared in the console. The JavaScript was executing fractions of a second before the HTML button had finished rendering, meaning the script was trying to attach an event to a button that did not technically exist yet.
-*   **Resources Consulted:** Investigated JavaScript DOM loading lifecycles and "race conditions" in mobile browser environments.
-*   **The Resolution:** I attempted to fix the load order by wrapping the event listener inside a `window.onload` function. This forces the JavaScript execution to pause until the entire HTML document is fully loaded and drawn on the screen.
-
-### Blocker Entry #3: Environment Sandbox Limitations
-*   **Date:** August 17, 2026
-*   **The Goal:** Execute the fully connected exponential backoff logic on a mobile browser simulator.
-*   **The Error / Blocker:** The platform's mobile split-pane iframes continued to aggressively block the `window.onload` command and isolated the JavaScript from the HTML, causing repeated ReferenceErrors despite the code being structurally perfect. 
-*   **Resources Consulted:** Explored standalone single-file web application architecture and inline `<script>` execution.
-*   **The Resolution:** I completely abandoned the editor's split-pane sandbox setup. I injected the entire JavaScript logic directly into the HTML file using a `<script>` tag. This bypassed the platform's artificial environment restrictions entirely, mimicking a raw, deployment-ready file structure and resulting in a 100% functional prototype..
+## How to Test
+Visit the live GitHub Pages link and utilize the provided test cases:
+1. **Scan Attendee 1 (Fresh):** Expected result is a successful green check-in.
+2. **Scan Attendee 2 (Fresh):** Expected result is a successful green check-in.
+3. **Scan Attendee 1 (Duplicate Test):** Expected result is a blocked red error, verifying the security validation[cite: 2].
