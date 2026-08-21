@@ -7,24 +7,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solstice Events - Check-in Kiosk</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); } }
-        .kiosk-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 400px; }
-        button { background-color: #0078D4; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 0.5rem; }
-        button:hover { background-color: #005a9e; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        #status-display { font-size: 16px; font-weight: bold; margin-top: 1rem; padding: 10px; border-radius: 6px; min-height: 24px;}
-        .pending { background-color: #fff4ce; color: #795548; }
-        .success { background-color: #dff6dd; color: #107c10; }
-        .error { background-color: #fde7e9; color: #a80000; }
+       body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    height: 100vh; background-color: #f3f4f6; margin: 0; 
+}
+.kiosk-card { 
+    background: #ffffff; padding: 3rem 2.5rem; border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; 
+    width: 420px; box-sizing: border-box; 
+}
+.brand-title { 
+    font-size: 24px; font-weight: 800; letter-spacing: 1.5px; 
+    text-transform: uppercase; color: #111827; margin-top: 0; margin-bottom: 0.25rem; 
+}
+.subtitle { 
+    color: #6b7280; font-size: 14px; margin-bottom: 2rem; line-height: 1.5; 
+}
+button { 
+    background-color: #111827; color: #ffffff; border: none; padding: 14px 24px; 
+    font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer; 
+    width: 100%; margin-bottom: 0.75rem; transition: background-color 0.2s ease; 
+}
+button:hover { background-color: #374151; }
+button:disabled { background-color: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+#status-display { 
+    font-size: 14px; font-weight: 600; margin-top: 1.5rem; padding: 12px; 
+    border-radius: 8px; min-height: 20px; transition: all 0.3s ease;
+}
+.pending { background-color: #fef3c7; color: #92400e; }
+.success { background-color: #d1fae5; color: #065f46; }
+.error { background-color: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
 
-   <div class="kiosk-card">
-        <h2>🎫 Solstice Tech Conference</h2>
-        <p style="color: #555; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
-            Welcome! Please select an option below to simulate scanning your digital QR code.
-        </p>
+  <div class="kiosk-card">
+        <h2 class="brand-title">Solstice</h2>
+        <p class="subtitle">Event Check-in Portal</p>
+       
         <!-- Three buttons to satisfy the client requirement -->
         <button id="btn-ATT-101" onclick="simulateScan('ATT-101', 'btn-ATT-101')">Scan Attendee 1 (Fresh)</button>
         <button id="btn-ATT-102" onclick="simulateScan('ATT-102', 'btn-ATT-102')">Scan Attendee 2 (Fresh)</button>
