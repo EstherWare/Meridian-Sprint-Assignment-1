@@ -1,35 +1,75 @@
 
 
-<button onclick="fetchInventory()">Check Inventory</button>
-<p id="statusMessage">Status: Waiting...</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solstice Events - Check-in Kiosk</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f4f9; }
+        .kiosk-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
+        button { background-color: #0078D4; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 1rem; }
+        button:hover { background-color: #005a9e; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #status-display { font-size: 18px; font-weight: bold; margin-top: 1rem; padding: 10px; border-radius: 6px; }
+        .pending { background-color: #fff4ce; color: #795548; }
+        .success { background-color: #dff6dd; color: #107c10; }
+        .error { background-color: #fde7e9; color: #a80000; }
+    </style>
+</head>
+<body>
 
-<script>
-  let attemptCount = 0;
-  let maxRetries = 3;
+    <div class="kiosk-card">
+        <h2>Solstice Check-in</h2>
+        <button id="scanBtn" onclick="simulateScan()">Scan Attendee (ATT-101)</button>
+        <div id="status-display">Waiting for attendee scan...</div>
+    </div>
 
-  function fetchInventory() {
-    attemptCount++;
-    
-    document.getElementById("statusMessage").innerText = "Trying to connect... Attempt " + attemptCount;
-    
-    let success = false; 
+    <script>
+        async function simulateScan() {
+            const btn = document.getElementById('scanBtn');
+            const statusDisplay = document.getElementById('status-display');
+            
+            // 1. Lock the UI and set the mandatory "Pending" state
+            btn.disabled = true;
+            statusDisplay.className = 'pending';
+            statusDisplay.innerText = "Pending: Waiting for printer callback...";
 
-    if (success) {
-      document.getElementById("statusMessage").innerText = "Connected successfully!";
-    } else {
-      if (attemptCount <= maxRetries) {
-        
-        let waitTimeSeconds = Math.pow(2, attemptCount); 
-        let waitTimeMilliseconds = waitTimeSeconds * 1000; 
-        
-        document.getElementById("statusMessage").innerText += " (Failed. Waiting " + waitTimeSeconds + "s to retry...)";
-        
-        setTimeout(fetchInventory, waitTimeMilliseconds);
-        
-      } else {
-        document.getElementById("statusMessage").innerText = "Connection completely failed after " + maxRetries + " retries. Give up.";
-        attemptCount = 0; 
-      }
-    }
-  }
-</script>
+            // Your live Azure Webhook URL from yesterday
+            const webhookUrl = "https://solstice-webhook-ewk-g8a6d0f9fxfjfxcr.southafricanorth-01.azurewebsites.net/api/PrintJobCallback";
+
+            // The mock payload mimicking the vendor's success message
+            const vendorPayload = {
+                attendeeId: "ATT-101",
+                status: "COMPLETED"
+            };
+
+            try {
+                // 2. Simulate the async callback hitting your webhook
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(vendorPayload)
+                });
+
+                const responseText = await response.text();
+
+                // 3. Update the UI based on the webhook's response
+                if (response.ok) {
+                    statusDisplay.className = 'success';
+                    statusDisplay.innerText = "Checked In! \n" + responseText;
+                } else {
+                    statusDisplay.className = 'error';
+                    statusDisplay.innerText = "Error: " + responseText;
+                }
+            } catch (error) {
+                statusDisplay.className = 'error';
+                statusDisplay.innerText = "Network Error. Check console.";
+                console.error("Fetch failed:", error);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
