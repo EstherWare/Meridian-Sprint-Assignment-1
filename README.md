@@ -21,9 +21,9 @@ Visit the live GitHub Pages link and utilize the provided test cases:
 1. **Scan Attendee 1 (Fresh):** Expected result is a successful green check-in.
 2. **Scan Attendee 2 (Fresh):** Expected result is a successful green check-in.
 3. **Scan Attendee 1 (Duplicate Test):** Expected result is a blocked red error, verifying the security validation.
-
+   
 ## Sprint Documentation
 
-* **Assignment 1:** [Learning & Blocker Journal](./docs/Learning-Blocker-Journal.pdf)
-* **Assignment 2:** [Scope Delta Analysis](./docs/Scope-Delta-Analysis.pdf)
-  
+* **Assignment 1:** [Learning & Blocker Journal](<The Learning & Blocker Journal.pdf>)
+* **Assignment 2:** [Scope Delta Analysis](<Scope Delta Analysis.pdf>)
+
